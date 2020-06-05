@@ -1,0 +1,10 @@
+x <- c(24,36,48,60,84,120,180)
+y <- c(3.94,4.03,4.29,4.30,4.63,4.86,5.02)
+lo <- loess(y~x, control=loess.control(surface = "direct"))
+x.all <- seq(3,200,3)
+y.all <- predict(object = lo,newdata = x.all)
+
+plot(y~x)
+plot(y.all~x.all)
+
+?loess
