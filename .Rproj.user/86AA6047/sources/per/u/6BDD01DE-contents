@@ -1,6 +1,0 @@
-
-install.packages("powerMediation")
-
-library(powerMediation)
-
-help("SSizeLogisticBin")

@@ -4,18 +4,19 @@ library(dplyr)
 library(ggplot2)
 library(scales)
 library(gridExtra)
+library(stringr)
 
 #download the dataset from the ECDC website to a local temporary file
 GET("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv",
     authenticate(":", ":", type="ntlm"), write_disk(tf <- tempfile(fileext = ".csv")))
 
 covid_data <- read.csv(tf, stringsAsFactors = FALSE)
+names(covid_data) <- gsub("[[:punct:]]|ï", '', names(covid_data))
 
 # save a local copy of the covid data
 write.csv(covid_data, "covid_data.csv", row.names = FALSE)
 
-covid_data <- covid_data %>% mutate(dateRep = as.Date(dateRep,"%d/%m/%Y"))
-
+covid_data <- covid_data %>% mutate(dateRep=as.Date(dateRep, "%d/%m/%Y"))
 
 dailyCases_func <-
   function(countryCode) {
@@ -52,7 +53,7 @@ dailyCases_func <-
     geom_smooth(span = 0.33) +
     scale_x_date(date_breaks = '10 days',
                  labels = date_format('%b-%d'),
-                 limits = c(firstCase, as.Date('2020-06-15'))) +
+                 limits = c(firstCase, as.Date('2020-06-30'))) +
     scale_y_continuous(limit = c(0, NA)) +
     labs(title = paste("Cases Reported Per Day,", countryName),
          y = "Number of Cases",
@@ -95,10 +96,10 @@ dailyDeaths_func <-
             legend.position = "none"
       ) +
       geom_bar(stat = "identity") +
-      geom_smooth(span = 0.33) +
+      geom_smooth(span = 0.20) +
       scale_x_date(date_breaks = '10 days',
                    labels = date_format('%b-%d'),
-                   limits = c(firstCase, as.Date('2020-06-15'))) +
+                   limits = c(firstCase, as.Date('2020-06-30'))) +
       scale_y_continuous(limit = c(0, NA)) +
       labs(title = paste("Deaths Reported Per Day,", countryName),
            y = "Deaths",
