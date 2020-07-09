@@ -51,9 +51,9 @@ dailyCases_func <-
           ) +
     geom_bar(stat = "identity") +
     geom_smooth(span = 0.33) +
-    scale_x_date(date_breaks = '10 days',
+    scale_x_date(date_breaks = '20 days',
                  labels = date_format('%b-%d'),
-                 limits = c(firstCase, as.Date('2020-06-30'))) +
+                 limits = c(firstCase, as.Date('2020-07-31'))) +
     scale_y_continuous(limit = c(0, NA)) +
     labs(title = paste("Cases Reported Per Day,", countryName),
          y = "Number of Cases",
@@ -97,9 +97,9 @@ dailyDeaths_func <-
       ) +
       geom_bar(stat = "identity") +
       geom_smooth(span = 0.20) +
-      scale_x_date(date_breaks = '10 days',
+      scale_x_date(date_breaks = '20 days',
                    labels = date_format('%b-%d'),
-                   limits = c(firstCase, as.Date('2020-06-30'))) +
+                   limits = c(firstCase, as.Date('2020-07-31'))) +
       scale_y_continuous(limit = c(0, NA)) +
       labs(title = paste("Deaths Reported Per Day,", countryName),
            y = "Deaths",
@@ -132,10 +132,7 @@ dailyCases_func('RU')
 grid.arrange(
   dailyCases_func('PH'),
   dailyCases_func('US'),
-  dailyCases_func('IT'),
-  dailyCases_func('CN'),
-  dailyCases_func('ES'),
-  ncol = 1
+  ncol = 2
   )
 
 # top 50 countries
@@ -145,37 +142,3 @@ top50 <-
   summarise(Cases=sum(cases)) %>%
   arrange(desc(Cases)) %>%
   print(n = 50)
-
-
-p1 <- covid_data %>%
-  filter(geoId == 'PH') %>%
-  arrange(dateRep) %>%
-  ggplot(aes(x = dateRep, y = cases)) +
-  geom_bar(stat = "identity") +
-  geom_smooth() +
-  scale_x_date(date_breaks = '7 days',
-               labels = date_format('%b-%d'),
-               limits = as.Date(c('2020-01-01','2020-04-30'))) +
-  scale_y_continuous(limit = c(0, NA))
-
-### Loess Regression
-
-
-countryCode <- 'IT'
-
-df <- covid_data %>%
-  filter(geoId == countryCode) %>%
-  arrange(dateRep)
-
-countryName <- unique(df$countriesAndTerritories)
-firstCase <- min(df[df$cases >= 1,]$dateRep)
-
-df <- df[df$dateRep >= firstCase,] %>%
-  select(dateRep, cases)
-
-date.all <- seq.Date(from = firstCase, to = as.Date('2020-04-30'), by = "day")
-
-lo <- loess(df$cases ~ as.numeric(df$dateRep),control = loess.control(surface = "direct"))
-
-barplot(df$cases ~ df$dateRep)
-plot(predict(lo, newdata = as.numeric(date.all)) ~ date.all)
